@@ -56,14 +56,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     lineHeight: '50',
     fontFamily: 'Inter',
     color: '#222',
     textAlign: 'center',
   },
   infoCard: {
-    width: 380,
+    width: 365,
     height: 82,
     flexDirection: 'row',
     alignItems: 'center',
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   infoTextBox: {
     height: 43,
     justifyContent: 'center',
-    marginLeft: 30,
+    marginLeft: 23,
     marginTop: 2,
   },
   infoText: {
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     lineHeight: 23,
   },
   sectionRow: {
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

@@ -8,7 +8,7 @@ export default function Header({ onBack, onBell }) {
       <TouchableOpacity onPress={onBack} style={styles.iconBox} activeOpacity={0.7}>
         <Ionicons name="arrow-back-outline" size={25} color="#222" />
       </TouchableOpacity>
-      <Image source={require("../../assets/images/partial-react-logo.png")} style={styles.logo} resizeMode="contain" />
+      <Ionicons name="logo-react" size={30} color="#222" />
       <TouchableOpacity onPress={onBell} style={styles.iconBox} activeOpacity={0.7}>
         <Ionicons name="notifications-outline" size={26} color="#222" />
       </TouchableOpacity>
