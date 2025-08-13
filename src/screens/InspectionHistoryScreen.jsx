@@ -79,18 +79,21 @@ function InspectionHistoryScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       />
-      
-      <BottomNav
-        onHomePress={() => {
-          /* navigation logic */
-        }}
-        onScanPress={() => {
-          /* scan logic */
-        }}
-        onProfilePress={() => {
-          /* navigation logic */
-        }}
-      />
+
+      {/* Absolutely position the BottomNav so FlatList scrolls behind it */}
+      <View style={styles.bottomNavContainer} pointerEvents="box-none">
+        <BottomNav
+          onHomePress={() => {
+            /* navigation logic */
+          }}
+          onScanPress={() => {
+            /* scan logic */
+          }}
+          onProfilePress={() => {
+            /* navigation logic */
+          }}
+        />
+      </View>
     
     </View>
   );
@@ -200,6 +203,14 @@ const styles = StyleSheet.create({
     fontWeight: 'medium',
     color: '#2E2E30',
     fontSize: 16,
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 20,
+    elevation: 20,
   },
 });
 
