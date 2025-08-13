@@ -1,50 +1,78 @@
-# Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Inspection History App
 
-## Get started
+An Expo React Native app for tracking and viewing inspection history of equipment, with a modern UI, animated lists, and month/year filtering.
 
-1. Install dependencies
+## Features
 
+- View inspection history for equipment by month and year
+- Animated list items (fade/slide in on scroll and refresh)
+- Pull-to-refresh with smooth re-animation
+- Month/year picker modal for quick navigation
+- Responsive, modern UI with floating action button (FAB) and bottom navigation
+- Empty state message when no inspections are available for a month
+
+## Folder Structure
+
+```
+inspection-history/
+├── app/                  # Entry points and routing
+├── assets/               # Images and fonts
+├── src/
+│   ├── components/       # Reusable UI components (BottomNav, Header, InspectionCard, MonthPickerModal)
+│   ├── data/             # Mock data for inspections
+│   ├── screens/          # Main screen (InspectionHistoryScreen)
+│   └── utils/            # Utility functions (dateUtils.js)
+├── package.json
+├── app.json
+└── ...
+```
+
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/) (install globally with `npm install -g expo-cli`)
+
+### Installation
+
+1. Clone the repository or download the project files.
+2. Navigate to the project directory:
+   ```bash
+   cd inspection-history
+   ```
+3. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
+### Running the App
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Start the Expo development server:
 
 ```bash
-npm run reset-project
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+You can then:
+- Scan the QR code with Expo Go on your mobile device
+- Press `a` to open in Android emulator
+- Press `i` to open in iOS simulator
+- Press `w` to open in your web browser
 
-## Learn more
+## Usage
 
-To learn more about developing your project with Expo, look at the following resources:
+- Use the month/year picker at the top to filter inspections
+- Pull down on the list to refresh and see animated reloading
+- Tap the floating scan button (FAB) for scan actions (customize as needed)
+- Use the bottom navigation for Home/Profile (customize navigation logic as needed)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Customization
 
-## Join the community
+- To change the mock data, edit `src/data/mockData.js`
+- To adjust UI or animations, edit components in `src/components/` and `src/screens/`
 
-Join our community of developers creating universal apps.
+## License
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is for educational/demo purposes. You may use and modify it as needed.
