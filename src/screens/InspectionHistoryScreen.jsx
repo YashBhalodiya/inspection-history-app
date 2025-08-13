@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useRef, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
 import MonthPickerModal from "../components/MonthPickerModal";
 import Header from "../components/Header";
 import InspectionCard from "../components/InspectionCard";
@@ -12,9 +18,38 @@ function InspectionHistoryScreen() {
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
   const [monthPickerVisible, setMonthPickerVisible] = useState(false);
-  const [monthPickerDate, setMonthPickerDate] = useState(new Date(selectedYear, selectedMonth - 1));
+  const [monthPickerDate, setMonthPickerDate] = useState(
+    new Date(selectedYear, selectedMonth - 1)
+  );
+  const [refreshing, setRefreshing] = useState(false);
 
-  const data = getInspectionsByMonth(inspectionData.inspections, selectedMonth, selectedYear);
+  let data = getInspectionsByMonth(
+    inspectionData.inspections,
+    selectedMonth,
+    selectedYear
+  );
+  data = data.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Animated values for each item
+  const animatedValues = useRef([]);
+  if (animatedValues.current.length !== data.length) {
+    animatedValues.current = data.map((_, i) => animatedValues.current[i] || new Animated.Value(0));
+  }
+
+  // Animate items when they become viewable (on scroll)
+  const onViewableItemsChanged = useCallback(({ viewableItems }) => {
+    viewableItems.forEach(({ index }) => {
+      if (animatedValues.current[index]) {
+        Animated.timing(animatedValues.current[index], {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
+      }
+    });
+  }, []);
+
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 30 });
 
   // to check if inspection is today
   const isToday = (dateStr) => {
@@ -26,9 +61,51 @@ function InspectionHistoryScreen() {
     );
   };
 
+  // Pull to refresh handler
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  // Animate all items in sequence after refresh completes
+  React.useEffect(() => {
+    if (!refreshing) {
+      animatedValues.current.forEach((v) => v.setValue(0));
+      animatedValues.current.forEach((v, i) => {
+        Animated.timing(v, {
+          toValue: 1,
+          duration: 400,
+          delay: i * 60,
+          useNativeDriver: true,
+        }).start();
+      });
+    }
+  }, [refreshing, data.length]);
+
+  // Animated wrapper for InspectionCard
+const AnimatedInspectionCard = React.memo(({ item, highlight, animated }) => (
+  <Animated.View
+    style={{
+      opacity: animated,
+      transform: [
+        {
+          translateY: animated.interpolate({
+            inputRange: [0, 1],
+            outputRange: [24, 0],
+          }),
+        },
+      ],
+    }}
+  >
+    <InspectionCard {...item} highlight={highlight} />
+  </Animated.View>
+));
+
+
   return (
     <View style={{ flex: 1 }}>
-
       <Header />
 
       <View style={styles.titleBox}>
@@ -36,10 +113,22 @@ function InspectionHistoryScreen() {
       </View>
 
       <View style={styles.infoCard}>
-        <View style={styles.chip}><Text style={styles.chipText}>{inspectionData.equipment.name}</Text></View>
+        <View style={styles.chip}>
+          <Text style={styles.chipText}>{inspectionData.equipment.name}</Text>
+        </View>
         <View style={styles.infoTextBox}>
-          <Text style={styles.infoText}>ID : <Text style={styles.infoTextBold}>{inspectionData.equipment.id}</Text></Text>
-          <Text style={styles.infoText}>Tag : <Text style={styles.infoTextBold}>{inspectionData.equipment.tag}</Text></Text>
+          <Text style={styles.infoText}>
+            ID :{" "}
+            <Text style={styles.infoTextBold}>
+              {inspectionData.equipment.id}
+            </Text>
+          </Text>
+          <Text style={styles.infoText}>
+            Tag :{" "}
+            <Text style={styles.infoTextBold}>
+              {inspectionData.equipment.tag}
+            </Text>
+          </Text>
         </View>
       </View>
 
@@ -51,7 +140,11 @@ function InspectionHistoryScreen() {
           activeOpacity={0.7}
         >
           <Text style={styles.headerMonthText}>
-            in {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
+            in{" "}
+            {new Date(selectedYear, selectedMonth - 1).toLocaleString(
+              "default",
+              { month: "long", year: "numeric" }
+            )}
           </Text>
         </TouchableOpacity>
       </View>
@@ -66,21 +159,30 @@ function InspectionHistoryScreen() {
           setMonthPickerDate(date);
         }}
       />
-      
-      <FlatList
+
+      <Animated.FlatList
         data={data}
         keyExtractor={(_, idx) => idx.toString()}
-        renderItem={({ item }) => (
-          <InspectionCard
-            {...item}
+        renderItem={({ item, index }) => (
+          <AnimatedInspectionCard
+            item={item}
             highlight={isToday(item.date)}
+            animated={animatedValues.current[index]}
           />
         )}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100, flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig.current}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No inspection history for this month.</Text>
+          </View>
+        )}
       />
 
-      {/* Absolutely position the BottomNav so FlatList scrolls behind it */}
       <View style={styles.bottomNavContainer} pointerEvents="box-none">
         <BottomNav
           onHomePress={() => {
@@ -94,83 +196,82 @@ function InspectionHistoryScreen() {
           }}
         />
       </View>
-    
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   titleBox: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
     marginBottom: 13,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    lineHeight: '50',
-    fontFamily: 'Inter',
-    color: '#222',
-    textAlign: 'center',
+    fontWeight: "bold",
+    lineHeight: "50",
+    fontFamily: "Inter",
+    color: "#222",
+    textAlign: "center",
   },
   infoCard: {
     width: 365,
     height: 82,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#6CA2F1',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#6CA2F1",
     borderRadius: 10,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 18,
-    justifyContent: 'flex-start',
+    justifyContent: "flex-start",
   },
   chip: {
     width: 134,
     height: 43,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginLeft: 17,
     marginRight: 18,
   },
   chipText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 20,
-    color: '#222',
-    textAlign: 'center',
+    color: "#222",
+    textAlign: "center",
     width: 97,
     height: 23,
     lineHeight: 23,
   },
   infoTextBox: {
     height: 43,
-    justifyContent: 'center',
+    justifyContent: "center",
     marginLeft: 23,
     marginTop: 2,
   },
   infoText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 20,
-    fontWeight: 'regular',
+    fontWeight: "regular",
     marginBottom: 2,
     width: 156,
     height: 23,
     lineHeight: 23,
   },
   headerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
     marginTop: 18,
     marginBottom: 10,
     paddingHorizontal: 22,
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#222',
-    fontFamily: 'Inter',
+    fontWeight: "bold",
+    color: "#222",
+    fontFamily: "Inter",
     lineHeight: 36,
   },
   headerMonthBox: {
@@ -180,32 +281,43 @@ const styles = StyleSheet.create({
   },
   headerMonthText: {
     fontSize: 16,
-    color: '#222',
-    fontFamily: 'Inter',
-    fontWeight: '500',
+    color: "#222",
+    fontFamily: "Inter",
+    fontWeight: "500",
   },
   sectionRow: {
     padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginHorizontal: 16,
     marginBottom: 8,
   },
   sectionTitle: {
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: "Inter",
+    fontWeight: "bold",
     fontSize: 28,
-    color: '#2E2E30',
+    color: "#2E2E30",
   },
   month: {
-    fontFamily: 'Inter',
-    fontWeight: 'medium',
-    color: '#2E2E30',
+    fontFamily: "Inter",
+    fontWeight: "medium",
+    color: "#2E2E30",
     fontSize: 16,
   },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 60,
+  },
+  emptyText: {
+    fontSize: 17,
+    color: '#888',
+    textAlign: 'center',
+  },
   bottomNavContainer: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,

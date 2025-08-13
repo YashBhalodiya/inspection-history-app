@@ -35,6 +35,7 @@ export default function MonthPickerModal({ visible, initialDate, onClose, onSele
         <View style={styles.modalContent}>
           <Text style={styles.title}>Select Month</Text>
           <View style={styles.pickerRow}>
+            
             <View style={styles.pickerCol}>
               <Text style={styles.label}>Month</Text>
               <ScrollView style={styles.pickerList} contentContainerStyle={styles.pickerListContent} showsVerticalScrollIndicator={false}>
@@ -49,6 +50,7 @@ export default function MonthPickerModal({ visible, initialDate, onClose, onSele
                 ))}
               </ScrollView>
             </View>
+            
             <View style={styles.pickerCol}>
               <Text style={styles.label}>Year</Text>
               <ScrollView style={styles.pickerList} contentContainerStyle={styles.pickerListContent} showsVerticalScrollIndicator={false}>
@@ -63,12 +65,15 @@ export default function MonthPickerModal({ visible, initialDate, onClose, onSele
                 ))}
               </ScrollView>
             </View>
+          
           </View>
+          
           <View style={styles.buttonRow}>
             <Button title="Cancel" onPress={onClose} />
             <View style={{ width: 12 }} />
             <Button title="Select" onPress={handleSelect} />
           </View>
+        
         </View>
       </View>
     </Modal>

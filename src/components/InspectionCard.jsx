@@ -26,6 +26,7 @@ export default function InspectionCard({
 
   return (
     <View style={styles.rowWrap}>
+
       <View style={styles.dateCol}>
         <Text style={styles.date}>{day}</Text>
       </View>
@@ -33,15 +34,18 @@ export default function InspectionCard({
       <View style={styles.cardWrapper}>
         <View style={[styles.innerCard, { backgroundColor: statusStyle.bg }]}>
           <View style={[styles.statusBar, { backgroundColor: barColor }]} />
+          
           <View style={{ flex: 1 }}>
             <Text style={styles.taskName}>{taskName}</Text>
             <Text style={styles.description}>{taskDescription}</Text>
           </View>
+          
           <View style={styles.statusBadge}>
             <Text style={[styles.statusText, { color: statusStyle.color }]}>
               {status}
             </Text>
           </View>
+        
         </View>
       </View>
     </View>
