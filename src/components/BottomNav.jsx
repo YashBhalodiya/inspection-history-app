@@ -1,6 +1,6 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet, Platform, Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function BottomNav() {
   return (
@@ -8,14 +8,14 @@ export default function BottomNav() {
       
       <View style={styles.container}>
         <TouchableOpacity style={styles.sideButton}>
-          <Ionicons name="home-outline" size={30} color="#111" />
+          <MaterialCommunityIcons name="home-outline" size={36} color="#111" />
           <Text style={styles.label}>Home</Text>
         </TouchableOpacity>
 
         <View style={styles.centerSpace} />
 
         <TouchableOpacity style={styles.sideButton}>
-          <Ionicons name="person-circle-outline" size={32} color="#111" />
+          <MaterialCommunityIcons name="account-circle-outline" size={36} color="#111" />
           <Text style={styles.label}>Profile</Text>
         </TouchableOpacity>
 
@@ -23,7 +23,7 @@ export default function BottomNav() {
 
       <View style={styles.scanButtonWrap} pointerEvents="box-none">
         <TouchableOpacity style={styles.scanButton} activeOpacity={0.8}>
-          <Ionicons name="scan-outline" size={56} color="#fff" />
+          <MaterialCommunityIcons name="barcode-scan" size={48} color="#fff" />
         </TouchableOpacity>
       </View>
 

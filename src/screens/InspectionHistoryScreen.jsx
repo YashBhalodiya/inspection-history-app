@@ -1,38 +1,88 @@
-import React from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import Header from "../components/Header";
 import InspectionCard from "../components/InspectionCard";
 import BottomNav from "../components/BottomNav";
-import { inspections } from "../data/mockData";
+import { inspectionData } from "../data/mockData";
 import { getInspectionsByMonth } from "../utils/dateUtils";
 
 export default function InspectionHistoryScreen({ navigation }) {
-  const data = getInspectionsByMonth(inspections, 1, 2025);
+  const today = new Date();
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+
+  const data = getInspectionsByMonth(inspectionData.inspections, selectedMonth, selectedYear);
+
+  const handlePrevMonth = () => {
+    if (selectedMonth === 1) {
+      setSelectedMonth(12);
+      setSelectedYear(selectedYear - 1);
+    } else {
+      setSelectedMonth(selectedMonth - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (selectedMonth === 12) {
+      setSelectedMonth(1);
+      setSelectedYear(selectedYear + 1);
+    } else {
+      setSelectedMonth(selectedMonth + 1);
+    }
+  };
+
+  // Helper to check if inspection is today
+  const isToday = (dateStr) => {
+    const d = new Date(dateStr);
+    return (
+      d.getFullYear() === today.getFullYear() &&
+      d.getMonth() === today.getMonth() &&
+      d.getDate() === today.getDate()
+    );
+  };
 
   return (
     <View style={{ flex: 1 }}>
+
       <Header />
+
       <View style={styles.titleBox}>
         <Text style={styles.title}>Inspection History</Text>
       </View>
+      
       <View style={styles.infoCard}>
-        <View style={styles.chip}><Text style={styles.chipText}>Fire Pump</Text></View>
+        <View style={styles.chip}><Text style={styles.chipText}>{inspectionData.equipment.name}</Text></View>
         <View style={styles.infoTextBox}>
-          <Text style={styles.infoText}>ID : <Text style={styles.infoTextBold}>TECFI00009</Text></Text>
-          <Text style={styles.infoText}>Tag : <Text style={styles.infoTextBold}>FIR00009</Text></Text>
+          <Text style={styles.infoText}>ID : <Text style={styles.infoTextBold}>{inspectionData.equipment.id}</Text></Text>
+          <Text style={styles.infoText}>Tag : <Text style={styles.infoTextBold}>{inspectionData.equipment.tag}</Text></Text>
         </View>
       </View>
-      <View style={styles.sectionRow}>
-        <Text style={styles.sectionTitle}>Inspections</Text>
-        <Text style={styles.month}>in January 2025</Text>
+      
+      <View style={styles.monthSelector}>
+        <TouchableOpacity onPress={handlePrevMonth}>
+          <Text style={styles.monthNavBtn}>{"<"}</Text>
+        </TouchableOpacity>
+        <Text style={styles.monthLabel}>
+          {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
+        </Text>
+        <TouchableOpacity onPress={handleNextMonth}>
+          <Text style={styles.monthNavBtn}>{">"}</Text>
+        </TouchableOpacity>
       </View>
+      
       <FlatList
         data={data}
         keyExtractor={(_, idx) => idx.toString()}
-        renderItem={({ item }) => <InspectionCard {...item} />}
+        renderItem={({ item }) => (
+          <InspectionCard
+            {...item}
+            highlight={isToday(item.date)}
+          />
+        )}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       />
+      
       <BottomNav
         onHomePress={() => {
           /* navigation logic */
@@ -44,6 +94,7 @@ export default function InspectionHistoryScreen({ navigation }) {
           /* navigation logic */
         }}
       />
+    
     </View>
   );
 }
@@ -56,7 +107,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 'bold',
     lineHeight: '50',
     fontFamily: 'Inter',
     color: '#222',
@@ -106,6 +157,23 @@ const styles = StyleSheet.create({
     width: 156,
     height: 23,
     lineHeight: 23,
+  },
+  monthSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  monthNavBtn: {
+    fontSize: 24,
+    paddingHorizontal: 16,
+    color: '#2196F3',
+    fontWeight: 'bold',
+  },
+  monthLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: 8,
   },
   sectionRow: {
     padding: 12,
