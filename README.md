@@ -1,3 +1,4 @@
+<img src="assets/images/homescreen.png" width="250" height="540" />
 
 # Inspection History App
 
