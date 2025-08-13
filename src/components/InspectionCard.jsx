@@ -18,7 +18,6 @@ export default function InspectionCard({
   taskName,
   taskDescription,
   status,
-  highlight,
 }) {
   const statusStyle = statusStyles[status] || statusStyles["Satisfactory"];
   const barColor = barColors[status] || barColors["Satisfactory"];
@@ -53,16 +52,15 @@ const styles = StyleSheet.create({
   rowWrap: {
     flexDirection: "row",
     alignItems: "stretch",
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: "#D9D9D9",
+    borderTopWidth: 0.8,
+    borderColor: "#949494",
   },
   dateCol: {
     width: 50,
     alignItems: "center",
-    justifyContent: "flex-start",
-    borderRightWidth: 1,
-    borderColor: "#D9D9D9",
+    justifyContent: "center",
+    borderRightWidth: 0.8,
+    borderColor: "#949494",
     paddingVertical: 10,
   },
   date: {
@@ -100,7 +98,7 @@ const styles = StyleSheet.create({
   },
   statusBadge: {
     borderLeftWidth: 1,
-    borderColor: "#D9D9D9",
+    borderColor: "#000",
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",

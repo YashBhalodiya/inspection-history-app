@@ -1,37 +1,22 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import MonthPickerModal from "../components/MonthPickerModal";
 import Header from "../components/Header";
 import InspectionCard from "../components/InspectionCard";
 import BottomNav from "../components/BottomNav";
 import { inspectionData } from "../data/mockData";
 import { getInspectionsByMonth } from "../utils/dateUtils";
 
-export default function InspectionHistoryScreen({ navigation }) {
+function InspectionHistoryScreen() {
   const today = new Date();
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1);
+  const [monthPickerVisible, setMonthPickerVisible] = useState(false);
+  const [monthPickerDate, setMonthPickerDate] = useState(new Date(selectedYear, selectedMonth - 1));
 
   const data = getInspectionsByMonth(inspectionData.inspections, selectedMonth, selectedYear);
 
-  const handlePrevMonth = () => {
-    if (selectedMonth === 1) {
-      setSelectedMonth(12);
-      setSelectedYear(selectedYear - 1);
-    } else {
-      setSelectedMonth(selectedMonth - 1);
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (selectedMonth === 12) {
-      setSelectedMonth(1);
-      setSelectedYear(selectedYear + 1);
-    } else {
-      setSelectedMonth(selectedMonth + 1);
-    }
-  };
-
-  // Helper to check if inspection is today
+  // to check if inspection is today
   const isToday = (dateStr) => {
     const d = new Date(dateStr);
     return (
@@ -49,7 +34,7 @@ export default function InspectionHistoryScreen({ navigation }) {
       <View style={styles.titleBox}>
         <Text style={styles.title}>Inspection History</Text>
       </View>
-      
+
       <View style={styles.infoCard}>
         <View style={styles.chip}><Text style={styles.chipText}>{inspectionData.equipment.name}</Text></View>
         <View style={styles.infoTextBox}>
@@ -57,18 +42,30 @@ export default function InspectionHistoryScreen({ navigation }) {
           <Text style={styles.infoText}>Tag : <Text style={styles.infoTextBold}>{inspectionData.equipment.tag}</Text></Text>
         </View>
       </View>
-      
-      <View style={styles.monthSelector}>
-        <TouchableOpacity onPress={handlePrevMonth}>
-          <Text style={styles.monthNavBtn}>{"<"}</Text>
-        </TouchableOpacity>
-        <Text style={styles.monthLabel}>
-          {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
-        </Text>
-        <TouchableOpacity onPress={handleNextMonth}>
-          <Text style={styles.monthNavBtn}>{">"}</Text>
+
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>Inspections</Text>
+        <TouchableOpacity
+          style={styles.headerMonthBox}
+          onPress={() => setMonthPickerVisible(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.headerMonthText}>
+            in {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
+          </Text>
         </TouchableOpacity>
       </View>
+      <MonthPickerModal
+        visible={monthPickerVisible}
+        initialDate={monthPickerDate}
+        onClose={() => setMonthPickerVisible(false)}
+        onSelect={(date) => {
+          setMonthPickerVisible(false);
+          setSelectedYear(date.getFullYear());
+          setSelectedMonth(date.getMonth() + 1);
+          setMonthPickerDate(date);
+        }}
+      />
       
       <FlatList
         data={data}
@@ -158,22 +155,31 @@ const styles = StyleSheet.create({
     height: 23,
     lineHeight: 23,
   },
-  monthSelector: {
+  headerRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 8,
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginTop: 18,
+    marginBottom: 10,
+    paddingHorizontal: 22,
   },
-  monthNavBtn: {
-    fontSize: 24,
-    paddingHorizontal: 16,
-    color: '#2196F3',
+  headerTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#222',
+    fontFamily: 'Inter',
+    lineHeight: 36,
   },
-  monthLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginHorizontal: 8,
+  headerMonthBox: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  headerMonthText: {
+    fontSize: 16,
+    color: '#222',
+    fontFamily: 'Inter',
+    fontWeight: '500',
   },
   sectionRow: {
     padding: 12,
@@ -196,3 +202,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+export default InspectionHistoryScreen;
