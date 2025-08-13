@@ -9,8 +9,7 @@ An Expo React Native app for tracking and viewing inspection history of equipmen
 - Animated list items (fade/slide in on scroll and refresh)
 - Pull-to-refresh with smooth re-animation
 - Month/year picker modal for quick navigation
-- Responsive, modern UI with floating action button (FAB) and bottom navigation
-- Empty state message when no inspections are available for a month
+- Responsive, modern UI
 
 ## Folder Structure
 
